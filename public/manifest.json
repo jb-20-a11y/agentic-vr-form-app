@@ -1,0 +1,18 @@
+{
+  "name": "AT Forms - Healthcare Documentation",
+  "short_name": "AT Forms",
+  "description": "AI-powered healthcare form documentation",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f5f6fa",
+  "theme_color": "#3b72d6",
+  "orientation": "any",
+  "categories": ["medical", "productivity"],
+  "icons": [
+    {
+      "src": "/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ]
+}

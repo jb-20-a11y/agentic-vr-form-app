@@ -1,0 +1,190 @@
+{
+  "id": "at-training-report",
+  "version": "1.0",
+  "title": "Assistive Technology Training Report",
+  "description": "Document assistive technology training sessions including client details, services provided, and outcomes.",
+  "sections": [
+    {
+      "id": "basic-info",
+      "title": "Basic Information",
+      "description": "Core session identification details",
+      "fields": [
+        {
+          "id": "clientName",
+          "label": "Client Name",
+          "type": "text",
+          "required": true,
+          "placeholder": "Full name of the client",
+          "aiHints": {
+            "extractionPriority": "high",
+            "aliases": ["patient", "client", "individual", "person", "consumer", "student"],
+            "requiredForCompletion": true
+          }
+        },
+        {
+          "id": "dateOfService",
+          "label": "Date of Service",
+          "type": "date",
+          "required": true,
+          "aiHints": {
+            "extractionPriority": "high",
+            "aliases": ["session date", "appointment date", "today", "visit date", "date"],
+            "defaultToToday": true
+          }
+        },
+        {
+          "id": "instructorName",
+          "label": "Instructor/Trainer Name",
+          "type": "text",
+          "required": true,
+          "placeholder": "Name of the AT instructor",
+          "aiHints": {
+            "extractionPriority": "high",
+            "aliases": ["trainer", "instructor", "teacher", "specialist", "therapist"],
+            "requiredForCompletion": true
+          }
+        },
+        {
+          "id": "sessionDuration",
+          "label": "Session Duration (minutes)",
+          "type": "number",
+          "required": true,
+          "placeholder": "e.g., 60",
+          "aiHints": {
+            "extractionPriority": "medium",
+            "aliases": ["duration", "length", "time", "minutes", "hours"],
+            "expectedFormat": "number in minutes"
+          }
+        }
+      ]
+    },
+    {
+      "id": "service-details",
+      "title": "Service Details",
+      "description": "Information about the training session and technology used",
+      "fields": [
+        {
+          "id": "fundingSource",
+          "label": "Funding Source",
+          "type": "select",
+          "required": true,
+          "options": [
+            { "label": "Medicare", "value": "medicare" },
+            { "label": "Medicaid", "value": "medicaid" },
+            { "label": "Private Insurance", "value": "private-insurance" },
+            { "label": "Vocational Rehabilitation", "value": "voc-rehab" },
+            { "label": "Self-Pay", "value": "self-pay" },
+            { "label": "Grant Funded", "value": "grant" },
+            { "label": "Other", "value": "other" }
+          ],
+          "aiHints": {
+            "extractionPriority": "high",
+            "aliases": ["funding", "insurance", "payer", "payment source", "coverage"],
+            "requiredForCompletion": true
+          }
+        },
+        {
+          "id": "serviceType",
+          "label": "Service Type",
+          "type": "select",
+          "required": true,
+          "options": [
+            { "label": "Initial Assessment", "value": "initial-assessment" },
+            { "label": "Follow-up Training", "value": "follow-up" },
+            { "label": "Equipment Setup", "value": "equipment-setup" },
+            { "label": "Software Training", "value": "software-training" },
+            { "label": "Troubleshooting", "value": "troubleshooting" },
+            { "label": "Re-evaluation", "value": "re-evaluation" }
+          ],
+          "aiHints": {
+            "extractionPriority": "medium",
+            "aliases": ["type of service", "session type", "visit type", "training type"]
+          }
+        },
+        {
+          "id": "technologyUsed",
+          "label": "Technology/Equipment Used",
+          "type": "textarea",
+          "required": true,
+          "placeholder": "List all AT devices and software used during the session",
+          "aiHints": {
+            "extractionPriority": "high",
+            "aliases": ["equipment", "device", "software", "technology", "AT device", "tool", "assistive device"]
+          }
+        },
+        {
+          "id": "sessionLocation",
+          "label": "Session Location",
+          "type": "select",
+          "required": false,
+          "options": [
+            { "label": "Client's Home", "value": "home" },
+            { "label": "Office/Clinic", "value": "office" },
+            { "label": "School", "value": "school" },
+            { "label": "Workplace", "value": "workplace" },
+            { "label": "Telehealth/Remote", "value": "remote" }
+          ],
+          "aiHints": {
+            "extractionPriority": "low",
+            "aliases": ["location", "setting", "place", "where", "site"]
+          }
+        }
+      ]
+    },
+    {
+      "id": "session-notes",
+      "title": "Session Notes & Outcomes",
+      "description": "Detailed documentation of the training session",
+      "fields": [
+        {
+          "id": "sessionObjectives",
+          "label": "Session Objectives",
+          "type": "textarea",
+          "required": true,
+          "placeholder": "What were the goals for this session?",
+          "aiHints": {
+            "extractionPriority": "high",
+            "aliases": ["goals", "objectives", "aims", "purpose", "planned activities"]
+          }
+        },
+        {
+          "id": "activitiesPerformed",
+          "label": "Activities Performed",
+          "type": "textarea",
+          "required": true,
+          "placeholder": "Describe what was done during the session",
+          "aiHints": {
+            "extractionPriority": "high",
+            "aliases": ["activities", "what was done", "tasks", "exercises", "work performed"]
+          }
+        },
+        {
+          "id": "clientProgress",
+          "label": "Client Progress & Response",
+          "type": "textarea",
+          "required": true,
+          "placeholder": "How did the client respond? What progress was made?",
+          "aiHints": {
+            "extractionPriority": "high",
+            "aliases": ["progress", "response", "outcome", "client performance", "improvement"]
+          }
+        },
+        {
+          "id": "recommendations",
+          "label": "Recommendations & Next Steps",
+          "type": "textarea",
+          "required": false,
+          "placeholder": "What should be done next?",
+          "aiHints": {
+            "extractionPriority": "medium",
+            "aliases": ["recommendations", "next steps", "plan", "follow-up", "future sessions"]
+          }
+        }
+      ]
+    }
+  ],
+  "completionRules": {
+    "minimumRequiredFields": ["clientName", "dateOfService", "fundingSource"],
+    "confidenceThreshold": 0.75
+  }
+}
