@@ -15,7 +15,7 @@ export default async function HomePage() {
             <div className="size-8 rounded-lg bg-primary flex items-center justify-center">
               <FileText className="size-4 text-primary-foreground" />
             </div>
-            <span className="font-semibold text-foreground">AT Forms</span>
+            <span className="font-semibold text-foreground">Agentic VR Form App</span>
           </div>
         </div>
       </header>
@@ -29,10 +29,13 @@ export default async function HomePage() {
               AI-Powered Documentation
             </div>
             <h1 className="text-4xl md:text-5xl font-bold text-foreground leading-tight text-balance">
-              Healthcare Form Documentation, Simplified
+              Vocational Rehabilitation Form Documentation, Simplified
+            </h1>
+            <h1>
+              DISCLAIMER: DO NOT SUBMIT REAL INFORMATION AS THIS IS A PROTOTYPE AND USES PUBLIC CLOUD MODELS!
             </h1>
             <p className="mt-4 text-lg text-muted-foreground leading-relaxed text-pretty">
-              Fill out clinical forms faster with AI-assisted extraction. Describe your
+              Fill out vocational rehabilitation forms faster with AI-assisted extraction. Describe your
               session naturally and let the AI populate the fields, or enter data manually.
               Switch between modes anytime.
             </p>

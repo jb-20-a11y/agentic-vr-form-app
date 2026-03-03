@@ -7,8 +7,8 @@ const _geist = Geist({ subsets: ["latin"] });
 const _geistMono = Geist_Mono({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: 'AT Forms | AI-Powered Healthcare Documentation',
-  description: 'Fill out healthcare forms faster with AI-assisted data extraction. Describe your session naturally and let AI populate the fields.',
+  title: 'Agentic VR Form App',
+  description: 'Fill out vocational rehabilitation forms faster with AI-assisted data extraction. Describe your session naturally and let AI populate the fields.',
   manifest: '/manifest.json',
   icons: {
     icon: [
@@ -30,7 +30,7 @@ export const metadata: Metadata = {
   appleWebApp: {
     capable: true,
     statusBarStyle: 'default',
-    title: 'AT Forms',
+    title: 'Agentic VR Form App',
   },
 }
 

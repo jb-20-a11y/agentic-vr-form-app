@@ -11,7 +11,7 @@ export async function generateMetadata({ params }: Props) {
   try {
     const schema = await loadFormSchema(formId);
     return {
-      title: `${schema.title} | AT Forms`,
+      title: `${schema.title} | Agentic VR Form App`,
       description: schema.description || `Fill out ${schema.title}`,
     };
   } catch {
