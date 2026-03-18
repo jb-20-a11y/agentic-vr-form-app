@@ -36,6 +36,11 @@ EXTRACTION RULES:
 - If a field value is ambiguous, set lower confidence and ask for clarification
 - Only extract fields you are confident about; do not hallucinate values
 
+CORRECTION RULES:
+- If the user's input implies a previously extracted value was assigned to the wrong field (e.g., "no, that's the client" / "I said my name, not theirs"), include the incorrectly assigned field ID in the "fieldsToRemove" array
+- Re-extract the correct value into "extractedFields" if determinable from context
+- Do not include a field in both "fieldsToRemove" and "extractedFields" with the same value
+
 CONVERSATION RULES:
 - Be brief and professional
 - After extraction, summarize what you found

@@ -16,6 +16,7 @@ const MODEL = github.chat("gpt-4o");
 const extractionOutputSchema = z.object({
   extractedFields: z.record(z.string()),
   confidenceScores: z.record(z.number()),
+  fieldsToRemove: z.array(z.string()).default([]),
   agentMessage: z.string(),
   missingRequiredFields: z.array(z.string()),
 });
@@ -27,10 +28,11 @@ const JSON_OUTPUT_INSTRUCTION = `
 RESPONSE FORMAT — CRITICAL:
 You must respond with a single raw JSON object and nothing else.
 Do not include markdown code fences, backticks, or any text before or after the JSON.
-The JSON object must have exactly these four keys:
+The JSON object must have exactly these five keys:
 {
   "extractedFields": { "<fieldId>": "<value>", ... },
   "confidenceScores": { "<fieldId>": <0.0-1.0>, ... },
+  "fieldsToRemove": [ "fieldId", ... ],
   "agentMessage": "<conversational summary string>",
   "missingRequiredFields": ["<fieldId>", ...]
 }`;
@@ -163,7 +165,7 @@ export async function POST(req: Request) {
           content:
             `Your JSON was missing required keys or had wrong types:\n` +
             JSON.stringify(schemaResult.error.flatten().fieldErrors, null, 2) +
-            `\nReturn the complete JSON object with all four required keys.`,
+            `\nReturn the complete JSON object with all five required keys.`,
         });
         continue;
       }
@@ -197,6 +199,9 @@ export async function POST(req: Request) {
       .map((f) => f.id);
 
     const mergedData = { ...currentFormData, ...lastOutput.extractedFields };
+    for (const fieldId of lastOutput.fieldsToRemove) {
+      delete mergedData[fieldId];
+    }
     const filledRequired = allRequiredFields.filter((id) => {
       const val = mergedData[id];
       return val !== undefined && val !== "";
@@ -222,6 +227,7 @@ export async function POST(req: Request) {
       success: true,
       formData: lastOutput.extractedFields,
       fieldConfidence: lastOutput.confidenceScores,
+      fieldsToRemove: lastOutput.fieldsToRemove,
       conversationHistory: updatedHistory,
       completionScore,
       agentMessage: lastOutput.agentMessage,

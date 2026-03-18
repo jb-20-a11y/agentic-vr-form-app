@@ -16,6 +16,7 @@ interface FormState {
 
   // Actions
   updateField: (fieldId: string, value: string | number | boolean, source: FieldSource, confidence?: number) => void;
+  removeField: (fieldId: string) => void;
   updateMultipleFields: (
     updates: Record<string, string | number | boolean>,
     source: FieldSource,
@@ -41,6 +42,19 @@ export const useFormStore = create<FormState>()((set, get) => ({
       fieldConfidence: { ...state.fieldConfidence, [fieldId]: confidence },
       fieldSource: { ...state.fieldSource, [fieldId]: source },
     })),
+
+  removeField: (fieldId: string) =>
+    set((state) => {
+      const { [fieldId]: removedForm, ...newFormData } = state.formData;
+      const { [fieldId]: removedConf, ...newConfidence } = state.fieldConfidence;
+      const { [fieldId]: removedSrc, ...newSource } = state.fieldSource;
+
+      return {
+        formData: newFormData,
+        fieldConfidence: newConfidence,
+        fieldSource: newSource,
+    };
+  }),
 
   updateMultipleFields: (updates, source, confidences = {}) =>
     set((state) => ({

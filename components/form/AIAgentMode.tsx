@@ -22,6 +22,7 @@ export default function AIAgentMode({ formSchema }: Props) {
     formData,
     conversationHistory,
     updateMultipleFields,
+    removeField,
     addConversationMessage,
     setAgentActive,
     calculateCompletionScore,
@@ -65,6 +66,11 @@ export default function AIAgentMode({ formSchema }: Props) {
         // Update form state with AI extractions
         if (Object.keys(result.formData).length > 0) {
           updateMultipleFields(result.formData, "ai", result.fieldConfidence);
+        }
+        if (Object.keys(result.fieldsToRemove).length > 0) {
+          for (const fieldId of result.fieldsToRemove) {
+            removeField(fieldId);
+          }
         }
 
         // Add assistant message
