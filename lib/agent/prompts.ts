@@ -11,7 +11,12 @@ export function buildExtractionSystemPrompt(schema: FormSchema): string {
     )
     .join("\n");
 
-  return `You are an AI assistant helping fill out a healthcare form: "${schema.title}".
+  const now = new Date();
+  const dateStr = now.toLocaleDateString("en-US", { weekday: "long", year: "numeric", month: "long", day: "numeric" });
+  const timeStr = now.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" });
+
+  return `You are an AI assistant helping a vocational rehabilitation service provider fill out a form documenting a service provided to a client: "${schema.title}".
+Current date and time: ${dateStr} at ${timeStr}.
 ${schema.description ? `Form description: ${schema.description}` : ""}
 
 Your job is to:
