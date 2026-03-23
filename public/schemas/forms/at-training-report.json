@@ -1,6 +1,6 @@
 {
   "id": "at-training-report",
-  "version": "1.0",
+  "version": "1.1",
   "title": "Assistive Technology Training Report",
   "description": "Document assistive technology training sessions including client details, services provided, and outcomes.",
   "sections": [
@@ -38,10 +38,12 @@
           "type": "text",
           "required": true,
           "placeholder": "Name of the AT instructor",
+          "question": "What is the name of the instructor or trainer who provided the service?",
           "aiHints": {
             "extractionPriority": "high",
             "aliases": ["trainer", "instructor", "teacher", "specialist", "therapist"],
-            "requiredForCompletion": true
+            "requiredForCompletion": true,
+            "firstPersonNote": "The user filling out this form IS the instructor. If they say 'I did', 'me', 'I provided it', or similar first-person language, do NOT store that literally — ask them to clarify their name instead, as it will not be obvious who 'I' refers to in the final document."
           }
         },
         {
@@ -116,7 +118,7 @@
           "id": "sessionLocation",
           "label": "Session Location",
           "type": "select",
-          "required": false,
+          "required": true,
           "options": [
             { "label": "Client's Home", "value": "home" },
             { "label": "Office/Clinic", "value": "office" },
@@ -173,7 +175,7 @@
           "id": "recommendations",
           "label": "Recommendations & Next Steps",
           "type": "textarea",
-          "required": false,
+          "required": true,
           "placeholder": "What should be done next?",
           "aiHints": {
             "extractionPriority": "medium",

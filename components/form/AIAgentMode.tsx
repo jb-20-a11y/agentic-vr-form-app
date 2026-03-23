@@ -4,7 +4,7 @@ import { useState, useRef, useEffect } from "react";
 import { useFormStore } from "@/lib/stores/formStore";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Send, Loader2, Bot, User, Sparkles } from "lucide-react";
+import { Send, Loader2, Bot, User } from "lucide-react";
 import type { FormSchema, AgentResponse } from "@/lib/types/form";
 
 interface Props {
@@ -17,14 +17,16 @@ export default function AIAgentMode({ formSchema }: Props) {
   const [error, setError] = useState<string | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
   const endRef = useRef<HTMLDivElement>(null);
+  const openingFired = useRef(false);
 
   const {
     formData,
     conversationHistory,
+    currentFieldId,
     updateMultipleFields,
-    removeField,
     addConversationMessage,
     setAgentActive,
+    setCurrentFieldId,
     calculateCompletionScore,
   } = useFormStore();
 
@@ -32,21 +34,26 @@ export default function AIAgentMode({ formSchema }: Props) {
     endRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [conversationHistory, loading]);
 
-  const handleSubmit = async () => {
-    if (!input.trim() || loading) return;
+  // Fire the opening question automatically on first mount.
+  useEffect(() => {
+    if (openingFired.current || conversationHistory.length > 0) return;
+    openingFired.current = true;
+    callAgent("");
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
-    const userInput = input.trim();
-    setInput("");
+  const callAgent = async (userInput: string) => {
     setError(null);
     setLoading(true);
     setAgentActive(true);
 
-    // Add user message immediately
-    addConversationMessage({
-      role: "user",
-      content: userInput,
-      timestamp: Date.now(),
-    });
+    if (userInput.trim()) {
+      addConversationMessage({
+        role: "user",
+        content: userInput.trim(),
+        timestamp: Date.now(),
+      });
+    }
 
     try {
       const response = await fetch("/api/agent", {
@@ -57,29 +64,33 @@ export default function AIAgentMode({ formSchema }: Props) {
           userInput,
           conversationHistory,
           currentFormData: formData,
+          currentFieldId: currentFieldId ?? null,
         }),
       });
 
-      const result: AgentResponse & { success: boolean; error?: string } = await response.json();
+      const result: AgentResponse & {
+        success: boolean;
+        error?: string;
+        fieldsToRemove?: string[];
+      } = await response.json();
 
       if (result.success) {
-        // Update form state with AI extractions
-        if (Object.keys(result.formData).length > 0) {
-          updateMultipleFields(result.formData, "ai", result.fieldConfidence);
-        }
-        if (Object.keys(result.fieldsToRemove).length > 0) {
-          for (const fieldId of result.fieldsToRemove) {
-            removeField(fieldId);
-          }
-        }
+        // One atomic call: apply all extracted field updates and removals together.
+        // updateMultipleFields now accepts an optional removals list.
+        updateMultipleFields(
+          result.formData,
+          "ai",
+          result.fieldConfidence,
+          result.fieldsToRemove ?? []
+        );
 
-        // Add assistant message
         addConversationMessage({
           role: "assistant",
           content: result.agentMessage,
           timestamp: Date.now(),
         });
 
+        setCurrentFieldId(result.currentFieldId ?? null);
         calculateCompletionScore(formSchema);
       } else {
         setError(result.error || "Something went wrong. Please try again.");
@@ -91,6 +102,13 @@ export default function AIAgentMode({ formSchema }: Props) {
       setLoading(false);
       setAgentActive(false);
     }
+  };
+
+  const handleSubmit = async () => {
+    if (!input.trim() || loading) return;
+    const userInput = input.trim();
+    setInput("");
+    await callAgent(userInput);
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -105,38 +123,6 @@ export default function AIAgentMode({ formSchema }: Props) {
       {/* Chat area */}
       <div className="flex-1 overflow-y-auto p-4" ref={scrollRef}>
         <div className="flex flex-col gap-4 max-w-2xl mx-auto">
-          {/* Welcome message */}
-          {conversationHistory.length === 0 && (
-            <div className="flex flex-col items-center justify-center py-12 text-center">
-              <div className="size-14 rounded-2xl bg-primary/10 flex items-center justify-center mb-4">
-                <Sparkles className="size-7 text-primary" />
-              </div>
-              <h3 className="text-lg font-semibold text-foreground mb-2">
-                AI Form Assistant
-              </h3>
-              <p className="text-sm text-muted-foreground max-w-md leading-relaxed">
-                Describe your session or paste your notes, and I will extract the relevant
-                information to fill out the form. You can also answer my questions to
-                complete missing fields.
-              </p>
-              <div className="mt-6 flex flex-wrap justify-center gap-2">
-                {[
-                  "I had a session with John Smith today...",
-                  "Paste your session notes here",
-                  "The client used JAWS screen reader...",
-                ].map((suggestion) => (
-                  <button
-                    key={suggestion}
-                    onClick={() => setInput(suggestion)}
-                    className="text-xs px-3 py-1.5 rounded-full border border-border bg-card text-muted-foreground hover:bg-secondary hover:text-foreground transition-colors"
-                  >
-                    {suggestion}
-                  </button>
-                ))}
-              </div>
-            </div>
-          )}
-
           {/* Messages */}
           {conversationHistory.map((msg, idx) => (
             <div
@@ -177,7 +163,7 @@ export default function AIAgentMode({ formSchema }: Props) {
               <div className="bg-card border border-border rounded-2xl rounded-bl-md px-4 py-3">
                 <div className="flex items-center gap-2 text-muted-foreground text-sm">
                   <Loader2 className="size-4 animate-spin" />
-                  Analyzing your input...
+                  {conversationHistory.length === 0 ? "Starting interview..." : "Analyzing your input..."}
                 </div>
               </div>
             </div>
@@ -201,7 +187,7 @@ export default function AIAgentMode({ formSchema }: Props) {
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={handleKeyDown}
-            placeholder="Describe your session, paste notes, or answer questions..."
+            placeholder="Answer the question above, or describe your session..."
             rows={2}
             disabled={loading}
             className="resize-none bg-background min-h-[44px]"

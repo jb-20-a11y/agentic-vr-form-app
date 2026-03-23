@@ -13,6 +13,7 @@ export interface AIHints {
 export interface FormField {
   id: string;
   label: string;
+  question?: string;
   type: "text" | "date" | "textarea" | "select" | "number" | "checkbox" | "time" | "email" | "phone";
   required: boolean;
   placeholder?: string;
@@ -64,13 +65,14 @@ export interface AgentResponse {
   completionScore: number;
   agentMessage: string;
   missingFields: string[];
+  currentFieldId: string | null;
 }
 
 // --- Zod Schemas for validation ---
 
 export const agentRequestSchema = z.object({
   formSchemaId: z.string(),
-  userInput: z.string().min(1),
+  userInput: z.string(),
   conversationHistory: z.array(
     z.object({
       role: z.enum(["user", "assistant"]),
@@ -79,6 +81,7 @@ export const agentRequestSchema = z.object({
     })
   ),
   currentFormData: z.record(z.unknown()),
+  currentFieldId: z.string().nullable().optional(),
 });
 
 export type AgentRequest = z.infer<typeof agentRequestSchema>;

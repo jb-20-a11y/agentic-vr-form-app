@@ -13,17 +13,25 @@ interface FormState {
   conversationHistory: ConversationMessage[];
   agentActive: boolean;
   completionScore: number;
+  currentFieldId: string | null;
 
   // Actions
   updateField: (fieldId: string, value: string | number | boolean, source: FieldSource, confidence?: number) => void;
   removeField: (fieldId: string) => void;
+  /**
+   * Atomically applies field updates AND removals in one state transition.
+   * This prevents the "wrong branch" bug where a correction was applied but
+   * the old value wasn't removed because they were separate operations.
+   */
   updateMultipleFields: (
     updates: Record<string, string | number | boolean>,
     source: FieldSource,
-    confidences?: Record<string, number>
+    confidences?: Record<string, number>,
+    removals?: string[]
   ) => void;
   addConversationMessage: (message: ConversationMessage) => void;
   setAgentActive: (active: boolean) => void;
+  setCurrentFieldId: (fieldId: string | null) => void;
   clearForm: () => void;
   calculateCompletionScore: (schema: FormSchema) => void;
 }
@@ -35,6 +43,7 @@ export const useFormStore = create<FormState>()((set, get) => ({
   conversationHistory: [],
   agentActive: false,
   completionScore: 0,
+  currentFieldId: null,
 
   updateField: (fieldId, value, source, confidence = 1.0) =>
     set((state) => ({
@@ -45,31 +54,47 @@ export const useFormStore = create<FormState>()((set, get) => ({
 
   removeField: (fieldId: string) =>
     set((state) => {
-      const { [fieldId]: removedForm, ...newFormData } = state.formData;
-      const { [fieldId]: removedConf, ...newConfidence } = state.fieldConfidence;
-      const { [fieldId]: removedSrc, ...newSource } = state.fieldSource;
+      const { [fieldId]: _f, ...newFormData } = state.formData;
+      const { [fieldId]: _c, ...newConfidence } = state.fieldConfidence;
+      const { [fieldId]: _s, ...newSource } = state.fieldSource;
+      return {
+        formData: newFormData,
+        fieldConfidence: newConfidence,
+        fieldSource: newSource,
+      };
+    }),
+
+  updateMultipleFields: (updates, source, confidences = {}, removals = []) =>
+    set((state) => {
+      // Start from current state
+      let newFormData = { ...state.formData, ...updates };
+      let newConfidence = {
+        ...state.fieldConfidence,
+        ...Object.fromEntries(
+          Object.keys(updates).map((key) => [key, confidences[key] ?? 0.85])
+        ),
+      };
+      let newSource = {
+        ...state.fieldSource,
+        ...Object.fromEntries(Object.keys(updates).map((key) => [key, source])),
+      };
+
+      // Apply removals atomically in the same state update
+      for (const fieldId of removals) {
+        const { [fieldId]: _f, ...fd } = newFormData;
+        const { [fieldId]: _c, ...fc } = newConfidence;
+        const { [fieldId]: _s, ...fs } = newSource;
+        newFormData = fd;
+        newConfidence = fc;
+        newSource = fs;
+      }
 
       return {
         formData: newFormData,
         fieldConfidence: newConfidence,
         fieldSource: newSource,
-    };
-  }),
-
-  updateMultipleFields: (updates, source, confidences = {}) =>
-    set((state) => ({
-      formData: { ...state.formData, ...updates },
-      fieldConfidence: {
-        ...state.fieldConfidence,
-        ...Object.fromEntries(
-          Object.keys(updates).map((key) => [key, confidences[key] ?? 0.85])
-        ),
-      },
-      fieldSource: {
-        ...state.fieldSource,
-        ...Object.fromEntries(Object.keys(updates).map((key) => [key, source])),
-      },
-    })),
+      };
+    }),
 
   addConversationMessage: (message) =>
     set((state) => ({
@@ -78,6 +103,8 @@ export const useFormStore = create<FormState>()((set, get) => ({
 
   setAgentActive: (active) => set({ agentActive: active }),
 
+  setCurrentFieldId: (fieldId) => set({ currentFieldId: fieldId }),
+
   clearForm: () =>
     set({
       formData: {},
@@ -85,6 +112,7 @@ export const useFormStore = create<FormState>()((set, get) => ({
       fieldSource: {},
       conversationHistory: [],
       completionScore: 0,
+      currentFieldId: null,
     }),
 
   calculateCompletionScore: (schema) => {
