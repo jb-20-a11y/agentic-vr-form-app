@@ -1,9 +1,9 @@
 "use client";
 
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Bot, FileText, Columns2 } from "lucide-react";
+import { Bot, FileText, Columns2, Mic } from "lucide-react";
 
-export type ViewMode = "ai" | "manual" | "both";
+export type ViewMode = "ai" | "hands-free" | "manual" | "both";
 
 interface Props {
   mode: ViewMode;
@@ -16,7 +16,11 @@ export default function ModeToggle({ mode, onChange }: Props) {
       <TabsList>
         <TabsTrigger value="ai" className="gap-1.5">
           <Bot className="size-4" />
-          <span className="hidden sm:inline">AI Agent</span>
+          <span className="hidden sm:inline">AI Chat</span>
+        </TabsTrigger>
+        <TabsTrigger value="hands-free" className="gap-1.5">
+          <Mic className="size-4" />
+          <span className="hidden sm:inline">Hands-Free</span>
         </TabsTrigger>
         <TabsTrigger value="manual" className="gap-1.5">
           <FileText className="size-4" />
