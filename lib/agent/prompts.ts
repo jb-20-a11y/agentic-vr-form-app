@@ -32,12 +32,11 @@ export const EXTRACTION_JSON_INSTRUCTION = `
 RESPONSE FORMAT — CRITICAL:
 You must respond with a single raw JSON object and nothing else.
 Do not include markdown code fences, backticks, or any text before or after the JSON.
-The JSON object must have exactly these four keys:
+The JSON object must have exactly these three keys:
 {
   "extractedFields": { "<fieldId>": "<value>", ... },
   "confidenceScores": { "<fieldId>": <0.0-1.0>, ... },
-  "fieldsToRemove": [ "fieldId", ... ],
-  "missingRequiredFields": ["<fieldId>", ...]
+  "fieldsToRemove": [ "fieldId", ... ]
 }`;
 
 export function buildExtractionSystemPrompt(
@@ -69,7 +68,7 @@ export function buildExtractionSystemPrompt(
 Current date and time: ${dateStr} at ${timeStr}.
 ${schema.description ? `Form description: ${schema.description}` : ""}
 
-IMPORTANT CONTEXT: The person submitting this form is the INSTRUCTOR/PROVIDER themselves. When they use first-person pronouns ("I", "me", "my", "we") they are referring to themselves as the instructor. Do NOT store literal first-person phrases as field values. If a field requires a proper name and the user only gave a first-person answer, do not extract that field — flag it in missingRequiredFields so it can be asked again.
+IMPORTANT CONTEXT: The person submitting this form is the INSTRUCTOR/PROVIDER themselves. When they use first-person pronouns ("I", "me", "my", "we") they are referring to themselves as the instructor. Do NOT store literal first-person phrases as field values. If a field requires a proper name and the user only gave a first-person answer, do not extract that field.
 
 Your job is ONLY to extract field values. Do NOT generate any conversational message here.
 

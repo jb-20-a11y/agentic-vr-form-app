@@ -26,7 +26,6 @@ const extractionOutputSchema = z.object({
   extractedFields: z.record(z.string()),
   confidenceScores: z.record(z.number()),
   fieldsToRemove: z.array(z.string()).default([]),
-  missingRequiredFields: z.array(z.string()),
 });
 
 type ExtractionOutput = z.infer<typeof extractionOutputSchema>;
