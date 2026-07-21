@@ -145,14 +145,13 @@ The server performs two sequential LLM calls:
 
 **Call 1 — Extraction**
 
-The extraction system prompt lists every field in the schema (ID, label, type, required status, valid options, AI hints, and any first-person notes). The model is instructed to return a single raw JSON object with four keys:
+The extraction system prompt lists every field in the schema (ID, label, type, required status, valid options, AI hints, and any first-person notes). The model is instructed to return a single raw JSON object with three keys:
 
 ```json
 {
   "extractedFields": { "fieldId": "value" },
   "confidenceScores": { "fieldId": 0.95 },
-  "fieldsToRemove": ["fieldIdToCorrect"],
-  "missingRequiredFields": ["fieldId"]
+  "fieldsToRemove": ["fieldIdToCorrect"]
 }
 ```
 
